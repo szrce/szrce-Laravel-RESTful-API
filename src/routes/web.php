@@ -18,3 +18,4 @@ Route::get('/', function () {
 });
 
 Route::get('/products/view', [ProductsController::class, 'index']);
+Route::post('/products/add', [ProductsController::class, 'store']);
