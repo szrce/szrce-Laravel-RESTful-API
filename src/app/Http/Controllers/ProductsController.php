@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Products;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
@@ -14,7 +14,20 @@ class ProductsController extends Controller
     public function index()
     {
         //
-        echo 'hello';
+
+        $products = Products::all();
+        //return view('productsview', ['name'=>'sezer']);
+        return view('productsview', ['products' => Products::all()]);
+
+
+
+
+//        return view('productsview',]);
+
+        /*
+        foreach (Products::all() as $products) {
+            return $products;
+        }*/
     }
 
     /**
@@ -36,6 +49,16 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         //
+        print_r($request->input('id'));
+
+        $prod = Products::create([
+          'id'=>$request->input('id'),
+          'name'=>$request->input('name'),
+          'category'=>$request->input('category'),
+          'price'=>$request->input('price'),
+          'stock'=>$request->input('stock')
+      ]);
+
     }
 
     /**
