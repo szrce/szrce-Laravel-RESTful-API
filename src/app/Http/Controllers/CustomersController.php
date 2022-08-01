@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Products;
-use Illuminate\Http\Request;
 
-class ProductsController extends Controller
+use Illuminate\Http\Request;
+use App\Models\CustomersModels;
+
+class CustomersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,16 +15,7 @@ class ProductsController extends Controller
     public function index()
     {
         //
-        $products = Products::all();
-        //return view('productsview', ['name'=>'sezer']);
-        return view('productsview', ['products' => Products::all()]);
 
-//        return view('productsview',]);
-
-        /*
-        foreach (Products::all() as $products) {
-            return $products;
-        }*/
     }
 
     /**
@@ -45,15 +37,18 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         //
-        print_r($request->input('id'));
-
-        $prod = Products::create([
-          'id'=>$request->input('id'),
+        $products_customer = ProductsCustomerModels::create([
           'name'=>$request->input('name'),
-          'category'=>$request->input('category'),
-          'price'=>$request->input('price'),
-          'stock'=>$request->input('stock')
+          'since'=>$request->input('since'),
+          'revenue'=>$request->input('revenue')
       ]);
+
+    }
+
+    public function orderAdd(Request $request)
+    {
+        //
+        return response()->json([$request->input('id')]);
 
     }
 
