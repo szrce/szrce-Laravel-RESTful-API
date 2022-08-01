@@ -130,32 +130,35 @@ class OrdersController extends Controller
      */
     public function destroy(Request $request)
     {
-      /*
+      /*example data
+      [{
+        "ordersId": 7,
+        "productId":100
+      },
       {
-        "ordersId": 2,
-        "productId": 103
-      }
-      {
-        "101":[102],
-        "102":[102]
-      }*/
+      "ordersId": 8,
+      "productId":100
+      }]*/
 
+        /*if some part empty return error*/
         $validator = Validator::make($request->all(), [
-            'ordersId' => 'required|max:255',
-            'productId'=> 'required|max:255'
+            '*.ordersId' => 'required|max:255',
+            '*.productId*'=> 'required|max:255'
         ]);
-
         $validator_msg = $validator->errors()->messages();
+
 
         if ($validator->fails()) {
             return response()->json($validator_msg,400);
         }
 
-        //delete orders with equals id if not exist return not found
-        if(!OrdersModels::where(['id'=>$request->input('ordersId')],
-          ['productId'=>$request->input('productId')])->delete()){
-            return response()->json(['this ordersId or productId not exists orders'],404);
+        foreach($request->input() as $orderdata) {
+          if(!OrdersModels::where(['id'=>$orderdata['ordersId']],
+            ['productId'=>$orderdata['productId']])->delete()){
+              return response()->json(['this ordersId or productId not exists orders'],404);
+          }
         }
-        return response()->json(['ordersId delete it'],200);
+        //delete orders with equals id if not exist return not found
+        return response()->json(['orders delete it'],200);
     }
 }
