@@ -15,4 +15,9 @@ class OrdersModels extends Model
     protected $fillable = [
     ];
 
+    public function getdata()
+    {
+        return $this->hasOne(CustomersModels::class,'id');
+    }
+
 }

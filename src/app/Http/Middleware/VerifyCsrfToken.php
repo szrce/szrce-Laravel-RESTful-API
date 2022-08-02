@@ -16,7 +16,8 @@ class VerifyCsrfToken extends Middleware
         '/products/add',
         '/products/customeradd',
         '/products/orderAdd',
-        '/products/orderDell'
+        '/products/orderDell',
+        '/products/orderShow'
 
     ];
 }

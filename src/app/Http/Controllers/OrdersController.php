@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OrdersModels;
 use App\Models\CustomersModels;
+use App\Models\Products;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Collection;
 
@@ -16,7 +17,13 @@ class OrdersController extends Controller
      */
     public function index()
     {
-        //
+        //show all products
+        //if exist another table data we get data.
+        foreach(CustomersModels::all() as $d){
+            $orderList[] = CustomersModels::find($d->id)->getdata;
+        }
+        //return $phone = CustomersModels::find(1)->getdata;
+        return ($orderList);
     }
 
     /**
@@ -27,8 +34,6 @@ class OrdersController extends Controller
     public function create()
     {
         //
-
-
     }
 
     /**
@@ -58,27 +63,35 @@ class OrdersController extends Controller
                         "total": "120.75"
             }]
           }
-          }
-
-        $request->collect()->each(function ($userd) {
-            print_r($userd['id']);
-        });  */
+        }*/
 
         if ($request->isMethod('post')) {
 
             foreach($request->input() as $customerID=>$productData){
               if(empty(CustomersModels::where('id', $customerID)->first()->id)){
-                  return response()->json(["this {$customerID}-ID not valid"],404);
+                return response()->json(["this customer {$customerID}-ID not valid"],404);
               }
               //continue;
               foreach($productData['items'] as $p){
+                if(Products::where('id',$p['productId'])->first()->stock <= 0){
+                  return response()->json(["this product {$p['productId']}-id not enough"],404);
+                }
+                if(Products::where(['id'=>$p['productId'],'price'=>$p['unitPrice']])->first() == NULL){
+                  return response()->json(["this {$p['productId']} product price not valid"],404);
+                }
+
                   $dataSet[] = [
                       'customerId'=> $customerID,
                       'productId'=> $p['productId'],
                       'quantity'=> $p['quantity'],
                       'unitPrice'=> $p['unitPrice'],
-                      'ptotal'=>$p['total']
+                      'ptotal'=>($p['quantity'] * $p['unitPrice'])
                   ];
+                }
+                $lastStock = Products::where('id', $p['productId'])->first()->stock;
+                $update_stock  = $lastStock - $p['quantity'];
+                if(!Products::where('id', $p['productId'])->update(['stock'=>$update_stock])){
+                  return response()->json(['stock fail'],500);
                 }
             }
             if(!OrdersModels::insert($dataSet)){
@@ -146,7 +159,6 @@ class OrdersController extends Controller
             '*.productId*'=> 'required|max:255'
         ]);
         $validator_msg = $validator->errors()->messages();
-
 
         if ($validator->fails()) {
             return response()->json($validator_msg,400);

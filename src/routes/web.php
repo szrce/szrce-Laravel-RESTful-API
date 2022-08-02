@@ -25,3 +25,4 @@ Route::post('/products/add', [ProductsController::class, 'store']);
 Route::post('/products/customeradd', [CustomersController::class, 'store']);
 Route::post('/products/orderAdd', [OrdersController::class, 'store']);
 Route::post('/products/orderDell', [OrdersController::class, 'destroy']);
+Route::post('/products/orderShow', [OrdersController::class, 'index']);
