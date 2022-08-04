@@ -23,5 +23,10 @@ class Products extends Model
       'price',
       'stock'
     ];
-
+    public static function StockUpdate(){
+      foreach(OrderProductModels::all() as $Orders){
+          $new_stock = (Products::where('id', $Orders->ProductId)->first()->stock) -  ($Orders->Quantity);
+           Products::where('id',$Orders->ProductId)->update(['stock' => $new_stock]);
+      }
+    }
 }

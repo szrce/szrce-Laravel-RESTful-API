@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OrdersModels;
+use App\Models\OrderProductModels;
 use App\Models\CustomersModels;
 use App\Models\Products;
 use Illuminate\Support\Facades\Validator;
@@ -17,13 +18,9 @@ class OrdersController extends Controller
      */
     public function index()
     {
-        //show all products
-        //if exist another table data we get data.
-        foreach(CustomersModels::all() as $d){
-            $orderList[] = CustomersModels::find($d->id)->getdata;
-        }
-        //return $phone = CustomersModels::find(1)->getdata;
-        return ($orderList);
+        //show all orders
+        $OrderList = OrdersModels::with('items')->get(array('OrderId','CustomerId','Total'));
+        return ($OrderList);
     }
 
     /**
@@ -44,62 +41,53 @@ class OrdersController extends Controller
      */
     public function store(Request $request)
     {
-        //we need customerID first and detect
-        /*
-        {
-          "101":{
-            "items":[{
-               "productId": 100,
-                        "quantity": 1,
-                        "unitPrice": "120.75",
-                        "total": "120.75"
-            }]
-          },
-          "102":{
-            "items":[{
-               "productId": 100,
-                        "quantity": 1,
-                        "unitPrice": "120.75",
-                        "total": "120.75"
-            }]
-          }
-        }*/
-
-        if ($request->isMethod('post')) {
-
-            foreach($request->input() as $customerID=>$productData){
-              if(empty(CustomersModels::where('id', $customerID)->first()->id)){
-                return response()->json(["this customer {$customerID}-ID not valid"],404);
-              }
-              //continue;
-              foreach($productData['items'] as $p){
-                if(Products::where('id',$p['productId'])->first()->stock <= 0){
-                  return response()->json(["this product {$p['productId']}-id not enough"],404);
-                }
-                if(Products::where(['id'=>$p['productId'],'price'=>$p['unitPrice']])->first() == NULL){
-                  return response()->json(["this {$p['productId']} product price not valid"],404);
-                }
-
-                  $dataSet[] = [
-                      'customerId'=> $customerID,
-                      'productId'=> $p['productId'],
-                      'quantity'=> $p['quantity'],
-                      'unitPrice'=> $p['unitPrice'],
-                      'ptotal'=>($p['quantity'] * $p['unitPrice'])
-                  ];
-                }
-                $lastStock = Products::where('id', $p['productId'])->first()->stock;
-                $update_stock  = $lastStock - $p['quantity'];
-                if(!Products::where('id', $p['productId'])->update(['stock'=>$update_stock])){
-                  return response()->json(['stock fail'],500);
-                }
-            }
-            if(!OrdersModels::insert($dataSet)){
-                return response()->json(['fail'],500);
-            }
-            return response()->json(['success'],200);
+      //we need customerID first and detect
+      /*
+      {
+        "101":{
+          "items":[{
+             "productId": 100,
+                      "quantity": 1,
+                      "unitPrice": "120.75",
+                      "total": "120.75"
+          }]
+        },
+        "102":{
+          "items":[{
+             "productId": 100,
+                      "quantity": 1,
+                      "unitPrice": "120.75",
+                      "total": "120.75"
+          }]
         }
-        return response()->json(['fail'],404);
+      }*/
+
+          foreach($request->input() as $customerID=>$productData){
+            $orderID = rand($customerID,300);
+            foreach($productData['items'] as $p){
+              $Product_data = Products::where('id',$p['productId'])->first(array('price','stock'));
+              if(!$Product_data->stock > $p['quantity']  == false){
+                  return response()->json(["this product {$p['productId']}-id not enough"],404);
+              }
+              $dataSet[] = [
+                  'orderId'=>$orderID,
+                  'productId'=> $p['productId'],
+                  'quantity'=> $p['quantity'],
+                  'Unitprice'=>$Product_data->price,
+                  'Total'=>($Product_data->price * $p['quantity'])
+                ];
+            }
+            $orders_table[] = [
+              'OrderId'=>$orderID,
+              'CustomerId'=>$customerID,
+              'total'=>0
+            ];
+          }
+
+          OrderProductModels::insert($dataSet);
+          OrdersModels::insert($orders_table);
+          OrdersModels::OrderUpdate();
+          Products::StockUpdate();
     }
 
     /**

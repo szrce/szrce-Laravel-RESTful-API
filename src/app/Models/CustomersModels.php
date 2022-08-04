@@ -17,10 +17,4 @@ class CustomersModels extends Model
       'since',
       'revenue'
     ];
-
-
-    public function getdata()
-    {
-        return $this->hasMany(OrdersModels::class,'customerId');
-    }
 }
