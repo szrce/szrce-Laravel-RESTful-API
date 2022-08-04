@@ -41,24 +41,28 @@ class OrdersController extends Controller
      */
     public function store(Request $request)
     {
-      //we need customerID first and detect
-      /*
+      /*example post order
       {
-        "101":{
+        "1":{
           "items":[{
              "productId": 100,
-                      "quantity": 1,
-                      "unitPrice": "120.75",
-                      "total": "120.75"
+             "quantity": 11
+
+          },
+          {
+            "productId": 104,
+            "quantity": 4
           }]
         },
-        "102":{
+        "2":{
           "items":[{
-             "productId": 100,
-                      "quantity": 1,
-                      "unitPrice": "120.75",
-                      "total": "120.75"
-          }]
+            "productId": 102,
+            "quantity": 8
+          },{
+            "productId": 103,
+            "quantity": 10
+          }
+          ]
         }
       }*/
 
