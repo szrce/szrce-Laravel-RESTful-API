@@ -19,8 +19,8 @@ class OrdersController extends Controller
     public function index()
     {
         //show all orders
-        $OrderList = OrdersModels::with('items')->get(array('OrderId','CustomerId','Total'));
-        return ($OrderList);
+        return OrdersModels::with('items')->get(array('OrderId','CustomerId','Total'));
+
     }
 
     /**

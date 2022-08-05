@@ -13,17 +13,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        //
         $products = Products::all();
-        //return view('productsview', ['name'=>'sezer']);
         return view('productsview', ['products' => Products::all()]);
-
-//        return view('productsview',]);
-
-        /*
-        foreach (Products::all() as $products) {
-            return $products;
-        }*/
     }
 
     /**
@@ -44,8 +35,8 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
+
         //
-        print_r($request->input('id'));
 
         $prod = Products::create([
           'id'=>$request->input('id'),
